@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>เกมโยงเส้น ก-ฮ</title>
+<title>เกมฝึกตัวอักษร ก-ฮ และ A-Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;700&family=Noto+Sans+Thai+Looped:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;700&family=Andika:wght@700&family=Noto+Sans+Thai+Looped:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   box-sizing:border-box;
@@ -96,13 +96,48 @@ svg.lines line{stroke-width:7;stroke-linecap:round}
   padding:10px 18px;border-radius:999px;font-weight:700;font-size:18px;z-index:5;pointer-events:none;opacity:0;transition:opacity .2s}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){.card,.card.bad,.modal{transition:none;animation:none}}
+
+/* tabs */
+.tabs{display:flex;gap:6px;padding:5px;margin-bottom:6px;background:var(--paper);border:2.5px solid var(--line);border-radius:18px}
+.tab{flex:1;padding:10px 8px;border-radius:13px;background:transparent;font-weight:700;font-size:16px;min-height:46px;color:var(--ink-soft)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--az-up-ink)}
+#thApp{flex:1;display:flex;flex-direction:column}
+
+/* A-Z matching */
+:root{--az-up:#7b4dff;--az-up-edge:#5530d0;--az-up-ink:#ffffff;--az-lo:#ffc93c;--az-lo-edge:#d79a00;--az-lo-ink:#1d2a5b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--az-up:#a58bff;--az-up-edge:#7656e0;--az-up-ink:#121a3a}}
+:root[data-theme="dark"]{--az-up:#a58bff;--az-up-edge:#7656e0;--az-up-ink:#121a3a}
+.az-board{display:grid;grid-template-columns:1fr 1fr}
+.az-side{padding:0 8px}
+.az-side+.az-side{border-left:3px dashed var(--line)}
+.az-side h3{margin:0 0 10px;text-align:center;font-size:15px;font-weight:700;color:var(--ink-soft)}
+.az-grid{display:grid;grid-template-columns:repeat(var(--cols,1),1fr);gap:12px}
+.az-tile{height:62px;border-radius:16px;font-family:"Andika",var(--font);font-weight:700;font-size:34px;line-height:1;
+  display:grid;place-items:center;touch-action:manipulation;transition:transform .08s,box-shadow .08s,background-color .2s}
+.az-tile[data-side="u"]{background:var(--az-up);color:var(--az-up-ink);box-shadow:0 6px 0 var(--az-up-edge)}
+.az-tile[data-side="l"]{background:var(--az-lo);color:var(--az-lo-ink);box-shadow:0 6px 0 var(--az-lo-edge)}
+.az-tile[data-side="u"]:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 var(--az-up-edge)}
+.az-tile[data-side="l"]:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 var(--az-lo-edge)}
+.az-tile.sel{outline:4px solid var(--ink);outline-offset:3px;transform:translateY(-3px)}
+.az-tile.done{background:var(--good);color:#06291e;box-shadow:0 2px 0 rgba(0,0,0,.25);transform:translateY(4px);cursor:default}
+.az-tile.bad{background:var(--warn);color:#fff;box-shadow:0 6px 0 rgba(0,0,0,.25);animation:shake .4s}
+.az-tile.done.pop{animation:azpop .3s}
+@keyframes azpop{0%{scale:1}50%{scale:1.12}100%{scale:1}}
+@media (max-width:380px){.az-tile{height:54px;font-size:28px}.az-grid{gap:10px}}
+@media (prefers-reduced-motion:reduce){.az-tile,.az-tile.bad,.az-tile.done.pop{transition:none;animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
 
+  <div class="tabs" role="tablist" id="tabs" aria-label="เลือกเกม">
+    <button class="tab" role="tab" id="tab-th" aria-controls="thApp" aria-selected="true" tabindex="0">ก-ฮ โยงเส้น</button>
+    <button class="tab" role="tab" id="tab-az" aria-controls="azApp" aria-selected="false" tabindex="-1">A-Z จับคู่</button>
+  </div>
+
+  <div id="thApp" role="tabpanel" aria-labelledby="tab-th">
   <section id="home">
-    <div class="toprow"><button class="icon-btn" id="soundBtn" aria-label="เปิด/ปิดเสียง">🔊</button></div>
+    <div class="toprow"><button class="icon-btn sound-btn" id="soundBtn" aria-label="เปิด/ปิดเสียง">🔊</button></div>
     <div class="hero">
       <div class="big">ก<i></i>🐔</div>
       <p>โยงเส้นจับคู่พยัญชนะกับรูปภาพ</p>
@@ -130,6 +165,49 @@ svg.lines line{stroke-width:7;stroke-linecap:round}
       <button id="restartBtn">เริ่มใหม่</button>
     </div>
   </section>
+  </div>
+
+  <div id="azApp" class="hidden" role="tabpanel" aria-labelledby="tab-az">
+    <section id="azHome">
+      <div class="toprow"><button class="icon-btn sound-btn" id="azSoundBtn" aria-label="เปิด/ปิดเสียง">🔊</button></div>
+      <div class="hero">
+        <div class="big">A<i></i>a</div>
+        <p>จับคู่ตัวพิมพ์ใหญ่กับตัวพิมพ์เล็ก</p>
+      </div>
+      <div class="group"><h2>ความยาก</h2><div class="chips" id="azLevelChips"></div></div>
+      <button class="play" id="azStartBtn">เริ่มเล่น</button>
+      <div class="best" id="azBestLine"></div>
+    </section>
+
+    <section id="azGame" class="hidden">
+      <div class="hud">
+        <div class="stat"><b id="azMiss">0</b><small>พลาด</small></div>
+        <div class="stat"><b id="azPairs" aria-live="polite">0/0</b><small>จับคู่แล้ว</small></div>
+        <div class="stat"><b id="azTimer">0:00</b><small>เวลา</small></div>
+      </div>
+      <p class="hint">แตะตัวพิมพ์ใหญ่ แล้วแตะตัวพิมพ์เล็กที่เป็นตัวเดียวกัน</p>
+      <div class="az-board" id="azBoard">
+        <div class="az-side"><h3>ตัวพิมพ์ใหญ่</h3><div class="az-grid" id="azUpper"></div></div>
+        <div class="az-side"><h3>ตัวพิมพ์เล็ก</h3><div class="az-grid" id="azLower"></div></div>
+      </div>
+      <div class="foot">
+        <button id="azHomeBtn">กลับหน้าแรก</button>
+        <button id="azRestartBtn">เริ่มใหม่</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="overlay hidden" id="azWin" role="dialog" aria-modal="true" aria-labelledby="azWinTitle">
+  <div class="modal">
+    <h2 id="azWinTitle">เก่งมาก!</h2>
+    <div class="stars" id="azStars"></div>
+    <p id="azWinText"></p>
+    <div class="row">
+      <button class="btn-alt" id="azWinHome">หน้าแรก</button>
+      <button class="btn-main" id="azWinAgain">เล่นอีกครั้ง</button>
+    </div>
+  </div>
 </div>
 
 <div class="overlay hidden" id="win" role="dialog" aria-modal="true">
@@ -194,7 +272,8 @@ function renderChips(){
 }
 $("setChips").addEventListener("click",e=>{const b=e.target.closest("[data-set]");if(b){setId=b.dataset.set;renderChips()}});
 $("levelChips").addEventListener("click",e=>{const b=e.target.closest("[data-level]");if(b){levelId=b.dataset.level;renderChips()}});
-$("soundBtn").addEventListener("click",()=>{soundOn=!soundOn;$("soundBtn").textContent=soundOn?"🔊":"🔇";if(soundOn)say("เสียงเปิดแล้ว")});
+function toggleSound(hello){soundOn=!soundOn;document.querySelectorAll(".sound-btn").forEach(b=>b.textContent=soundOn?"🔊":"🔇");if(soundOn)hello()}
+$("soundBtn").addEventListener("click",()=>toggleSound(()=>say("เสียงเปิดแล้ว")));
 $("startBtn").addEventListener("click",startGame);
 $("restartBtn").addEventListener("click",startGame);
 $("winAgain").addEventListener("click",startGame);
@@ -328,6 +407,114 @@ function win(){
 }
 
 renderChips();
+
+/* ---------- A-Z matching ---------- */
+function sayEn(t){if(!soundOn)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
+let azStop=()=>{};
+(function(){
+  const ALPHA="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const AZ_LEVELS=[{id:6,label:"ง่าย (6 คู่)"},{id:13,label:"กลาง (13 คู่)"},{id:26,label:"ครบ A-Z (26 คู่)"}];
+  let lvl=6, letters=[], matched=0, mist=0, sel=null, busy=false, started=false, t0=0, timer=null;
+  const bestKey=()=>"azmatch-best-"+lvl;
+  const face=(side,l)=>side==="u"?l:l.toLowerCase();
+  const tile=(side,l)=>`<button type="button" class="az-tile" data-side="${side}" data-letter="${l}" aria-pressed="false" aria-label="${side==="u"?"ตัวพิมพ์ใหญ่":"ตัวพิมพ์เล็ก"} ${face(side,l)}">${face(side,l)}</button>`;
+
+  function chips(){
+    $("azLevelChips").innerHTML=AZ_LEVELS.map(l=>`<button class="chip" data-level="${l.id}" aria-pressed="${l.id===lvl}">${l.label}</button>`).join("");
+    const b=store.get(bestKey());
+    $("azBestLine").textContent=b!==null?`สถิติของระดับนี้: พลาด ${b} ครั้ง`:"";
+  }
+  function pick(el){sel=el;el.classList.add("sel");el.setAttribute("aria-pressed","true")}
+  function unpick(){if(!sel)return;sel.classList.remove("sel");sel.setAttribute("aria-pressed","false");sel=null}
+
+  function start(){
+    clearInterval(timer);
+    letters=lvl===26?ALPHA.slice():shuffle(ALPHA.slice()).slice(0,lvl).sort();
+    let lows=shuffle(letters.slice());
+    if(lows.join("")===letters.join(""))lows=shuffle(letters.slice());
+    matched=0;mist=0;sel=null;busy=false;started=false;
+    const cols=lvl===6?1:2;
+    $("azUpper").style.setProperty("--cols",cols);
+    $("azLower").style.setProperty("--cols",cols);
+    $("azUpper").innerHTML=letters.map(l=>tile("u",l)).join("");
+    $("azLower").innerHTML=lows.map(l=>tile("l",l)).join("");
+    $("azMiss").textContent=0;$("azPairs").textContent="0/"+lvl;$("azTimer").textContent="0:00";
+    $("azWin").classList.add("hidden");$("azHome").classList.add("hidden");$("azGame").classList.remove("hidden");
+  }
+  function home(){
+    clearInterval(timer);
+    try{speechSynthesis.cancel()}catch(e){}
+    $("azWin").classList.add("hidden");$("azGame").classList.add("hidden");$("azHome").classList.remove("hidden");
+    chips();
+  }
+  azStop=home;
+
+  $("azBoard").addEventListener("click",e=>{
+    const el=e.target.closest(".az-tile");
+    if(!el||busy||el.disabled)return;
+    if(!started){started=true;t0=Date.now();timer=setInterval(()=>{$("azTimer").textContent=fmt(Math.floor((Date.now()-t0)/1000))},500)}
+    sayEn(el.dataset.letter);
+    if(!sel){pick(el);return}
+    if(sel===el){unpick();return}
+    if(sel.dataset.side===el.dataset.side){unpick();pick(el);return}
+    const first=sel;unpick();
+    if(first.dataset.letter===el.dataset.letter){
+      [first,el].forEach(t=>{t.classList.add("done","pop");t.disabled=true});
+      matched++;$("azPairs").textContent=matched+"/"+lvl;
+      flash(el.dataset.letter+" "+el.dataset.letter.toLowerCase());
+      if(matched===lvl)setTimeout(win,900);
+    }else{
+      mist++;$("azMiss").textContent=mist;busy=true;
+      first.classList.add("bad");el.classList.add("bad");
+      setTimeout(()=>{first.classList.remove("bad");el.classList.remove("bad");busy=false},450);
+    }
+  });
+
+  function win(){
+    clearInterval(timer);
+    const secs=Math.floor((Date.now()-t0)/1000);
+    const n=mist<=Math.max(1,Math.round(lvl*.1))?3:mist<=Math.max(3,Math.round(lvl*.25))?2:1;
+    $("azStars").textContent="⭐".repeat(n)+"☆".repeat(3-n);
+    const key=bestKey(), raw=store.get(key), prev=raw===null?null:+raw;
+    let extra="";
+    if(prev===null||mist<prev){store.set(key,String(mist));if(prev!==null)extra=" 🎉 สถิติใหม่!"}
+    $("azWinText").textContent=`จับคู่ครบ ${lvl} ตัว พลาด ${mist} ครั้ง เวลา ${fmt(secs)}${extra}`;
+    $("azWin").classList.remove("hidden");$("azWinAgain").focus();say("เก่งมาก");
+  }
+
+  $("azLevelChips").addEventListener("click",e=>{const b=e.target.closest("[data-level]");if(b){lvl=+b.dataset.level;chips()}});
+  $("azSoundBtn").addEventListener("click",()=>toggleSound(()=>sayEn("A")));
+  $("azStartBtn").addEventListener("click",start);
+  $("azRestartBtn").addEventListener("click",start);
+  $("azWinAgain").addEventListener("click",start);
+  $("azHomeBtn").addEventListener("click",home);
+  $("azWinHome").addEventListener("click",home);
+  chips();
+})();
+
+/* ---------- tabs ---------- */
+const TABS=["th","az"];
+function showTab(id,focus){
+  TABS.forEach(t=>{
+    const on=t===id, b=$("tab-"+t);
+    b.setAttribute("aria-selected",String(on));b.tabIndex=on?0:-1;
+    $(t==="th"?"thApp":"azApp").classList.toggle("hidden",!on);
+  });
+  if(id==="th")azStop();else goHome();
+  try{speechSynthesis.cancel()}catch(e){}
+  store.set("games-tab",id);
+  if(focus)$("tab-"+id).focus();
+}
+TABS.forEach(t=>$("tab-"+t).addEventListener("click",()=>{
+  if($("tab-"+t).getAttribute("aria-selected")!=="true")showTab(t);
+}));
+$("tabs").addEventListener("keydown",e=>{
+  if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+  e.preventDefault();
+  const cur=TABS.findIndex(t=>$("tab-"+t).getAttribute("aria-selected")==="true");
+  showTab(TABS[(cur+(e.key==="ArrowRight"?1:TABS.length-1))%TABS.length],true);
+});
+(function(){const s=store.get("games-tab");showTab(TABS.includes(s)?s:"th")})();
 </script>
 </body>
 </html>
